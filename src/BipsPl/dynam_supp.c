@@ -1229,7 +1229,9 @@ Clean_Erased_Clauses(void)
 	  continue;
 	}
 
-      for (clause = dyn->first_erased_cl; clause; clause = clause1)
+//https://mail.gnu.org/archive/html/bug-prolog/2015-07/msg00001.html
+      for (clause = dyn->first_erased_cl; clause > ALL_MUST_BE_ERASED; clause = clause1) //gusbro (estaba en 1.4.5, ver si se precisa)
+//      for (clause = dyn->first_erased_cl; clause; clause = clause1)
 	{
 	  clause1 = clause->next_erased_cl;
 	  Unlink_And_Free_Clause(clause);

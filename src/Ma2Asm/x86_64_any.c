@@ -234,7 +234,10 @@ Asm_Start(void)
 #if defined(M_darwin) || defined(M_bsd)
   pic_code = TRUE;  		/* NB: on darwin and BSD everything is PIC code */
 #elif defined(M_linux) && __GNUC__ >= 6 /* gcc >= 6 needs PIC for linux */
-  pic_code = FALSE;
+//gusbro.start
+//  pic_code = FALSE;
+  pic_code = TRUE; 
+//gusbro.end  
 #elif defined(_WIN32)
   pic_code = FALSE;  		/* NB: on MinGW nothing is needed for PIC code */
 #endif

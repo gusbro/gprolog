@@ -77,7 +77,10 @@ Pl_Consult_1(WamWord pl2wam_args_word)
   unsigned char *p = NULL;
   int status, c;
   int save_use_le_prompt;
-  char *arg[2 + Pl_List_Length(pl2wam_args_word)];
+//gusbro.start  
+//  char *arg[2 + Pl_List_Length(pl2wam_args_word)];
+  char *arg = (char*)malloc(2 + Pl_List_Length(pl2wam_args_word));
+//gusbro.end  
   WamWord word, tag_mask;
   WamWord *lst_adr;
   int n = 0;
@@ -116,6 +119,7 @@ Pl_Consult_1(WamWord pl2wam_args_word)
     {
     error_pl2wam:
       Pl_Err_System(Pl_Create_Atom("error trying to execute pl2wam (maybe not found)"));
+free(arg); //gusbro
       return FALSE;
     }
 
@@ -168,6 +172,7 @@ Pl_Consult_1(WamWord pl2wam_args_word)
   if (status < 0)
     goto error_pl2wam;
 
+free(arg); //gusbro
   return status == 0;
 }
 

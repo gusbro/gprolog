@@ -729,6 +729,7 @@ ASM_SUFFIX
 LDGUILIBS
 LDLIBS
 CFLAGS_UNSIGNED_CHAR
+CFLAGS_ENGINE1
 CFLAGS_MACHINE
 CFLAGS_PREFIX_REG
 TOP_LEVEL_FLAGS
@@ -4745,6 +4746,7 @@ else
 fi
 
     AR_RC="$AR rc "
+    CFLAGS_ENGINE1=$CFLAGS_ENGINE1
     AR_SEP=' '
     if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}strip", so it can be a program name with args.

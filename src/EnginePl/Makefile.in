@@ -6,6 +6,7 @@ LDFLAGS       = @LDFLAGS@
 AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@
 PROLOG_DIALECT= @PROLOG_DIALECT@
+CFLAGS_ENGINE1= @CFLAGS_ENGINE1@
 
 
 LIBNAME = $(LIB_ENGINE_PL)
@@ -80,7 +81,7 @@ obj_chain@OBJ_SUFFIX@: obj_chain.h obj_chain.c
 # engine1.c should be compiled without optimizations (or else it is a .s)
 
 engine1@OBJ_SUFFIX@: @MAKE_ENGINE1_SRC@
-	$(GPLC) -c -o engine1@OBJ_SUFFIX@ @MAKE_ENGINE1_SRC@
+	$(GPLC) -c $(CFLAGS_ENGINE1) -o engine1@OBJ_SUFFIX@ @MAKE_ENGINE1_SRC@
 
 engine@OBJ_SUFFIX@: engine.h engine.c
 

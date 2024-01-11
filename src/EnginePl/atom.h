@@ -178,6 +178,10 @@ PlLong pl_def_max_atom;		/* overwritten if needed (see top_comp.c) */
 
 
 
+//gusbro agrego ifndef
+
+#ifndef _INCLUDE_PROTOTYPES_H
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -196,7 +200,7 @@ int Pl_Gen_New_Atom(char *prefix);
 
 int Pl_Find_Next_Atom(int last_atom);
 
-
+#endif
 
 #ifdef OPTIM_1_CHAR_ATOM
 

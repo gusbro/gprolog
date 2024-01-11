@@ -75,7 +75,13 @@ char **pl_os_argv;
 char *pl_home;
 int pl_devel_mode;
 
+//gusbro.start
+#if M_ix86
+char pl_glob_buff[204800];
+#else
 char pl_glob_buff[1024 * 1024];
+#endif
+//gusbro.end
 
 PlLong *pl_base_fl;		/* overwritten by foreign if present */
 double *pl_base_fd;		/* overwritten by foreign if present */
