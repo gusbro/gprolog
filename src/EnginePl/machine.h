@@ -39,6 +39,10 @@
 #ifndef _MACHINE_H
 #define _MACHINE_H
 
+//gusbro.start: linux x64 with gcc: using R12-R15 does no work right when mixing prolog with .NET threads so we disable them here
+#define __FORCE_NO_MACHINE_REGS
+//gusbro.end
+
 #include "bool.h"
 
 
@@ -159,7 +163,10 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 	/* using s1-s5 causes problem with CTRL+C with -O3 */
 #    define M_USED_REGS            {/*"s1", "s2", "s3", "s4", "s5",*/ "s6", "s7", "s8", "s9", "s10", "s11", 0}
 
-#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
+//gusbro.start
+//#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
+#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__) && !defined(__FORCE_NO_MACHINE_REGS)
+//gusbro.end
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 
