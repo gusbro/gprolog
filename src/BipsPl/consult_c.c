@@ -79,7 +79,7 @@ Pl_Consult_1(WamWord pl2wam_args_word)
   int save_use_le_prompt;
 //gusbro.start  
 //  char *arg[2 + Pl_List_Length(pl2wam_args_word)];
-  char *arg = (char*)malloc(2 + Pl_List_Length(pl2wam_args_word));
+  char **arg = (char**)malloc(2 + Pl_List_Length(pl2wam_args_word));
 //gusbro.end  
   WamWord word, tag_mask;
   WamWord *lst_adr;
