@@ -440,6 +440,7 @@ Alloc_Init_Dyn_Info(int func, int arity)
   dyn->count_z = 0;
   dyn->first_erased_cl = NULL;
   dyn->next_dyn_with_erase = NULL;
+  dyn->curr_stamp = 0; //gusbro
 
   return dyn;
 }
@@ -1253,6 +1254,7 @@ Clean_Erased_Clauses(void)
 	  dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
 	  dyn->count_a = -1;
 	  dyn->count_z = 0;
+      dyn->curr_stamp = 0; // gusbro
 	}
 
 #if DEBUG_LEVEL >= 2
