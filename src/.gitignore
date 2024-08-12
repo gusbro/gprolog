@@ -13,3 +13,4 @@ config.cache
 autom4te.cache
 config.log
 gprolog-*.tar*
+configured
