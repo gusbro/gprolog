@@ -14,6 +14,7 @@ fi
 if (! test -f /usr/local/bin/yasm-win64); then
   if ! command -v make &> /dev/null
   then
+    echo Installing make...
     sudo apt-get update
     sudo apt install make
   fi

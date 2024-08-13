@@ -23,7 +23,7 @@ goto end
 :installPython
 echo Installing Python from Microsoft Store
 pause
-winget install python3 --disable-interactivity --silent
+winget install python3 --disable-interactivity --silent --accept-source-agreements --accept-package-agreements
 winget uninstall --id=Python.Launcher  -e --disable-interactivity --silent
 winget install --id=Python.Launcher  -e --disable-interactivity --silent
 
