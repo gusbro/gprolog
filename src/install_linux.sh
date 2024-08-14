@@ -6,10 +6,9 @@ if  [ $# -eq 0 ] || [ "${1,,}" != "debug" ] && [ "${1,,}" != "release" ]
 fi
 
 if [ "${1,,}" = "debug" ]; then
-  extra_args="\"--with-c-flags=-fPIC -g -Wall\" LDFLAGS=-fPIC CFLAGS_ENGINE1=\"-C '-fPIC'\" --prefix=`pwd`/../deploy/debug"
-
+  extra_args=(--with-c-flags="-fPIC -g -Wall" LDFLAGS=-fPIC CFLAGS_ENGINE1="-C -fPIC" --prefix="`pwd`/../deploy/debug")
 else
-  extra_args="--prefix=`pwd`/../deploy/release"
+  extra_args=("--prefix=`pwd`/../deploy/release")
 fi
 
 if ! command -v gcc &> /dev/null
@@ -23,7 +22,7 @@ if  ! test -f configured || ! grep -Fxq "${1,,}" configured
 then
   echo Configuring ${1,,}...
   make clean
-  ./configure $extra_args
+  ./configure "${extra_args[@]}"
   echo ${1,,} > configured
   make config 
 fi
