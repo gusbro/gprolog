@@ -23,7 +23,7 @@ if (! test -f /usr/local/bin/yasm-win64); then
   sudo ln -s "`which lib.exe`" /usr/local/bin/lib
   sudo ln -s "`which rc.exe`" /usr/local/bin/rc
   echo Copying Yasm...
-  sudo cp ../../yasm/Mkfiles/vs/x64/Debug/yasm.exe /usr/local/bin/yasm-win64
+  sudo cp ../../yasm/Mkfiles/vs/x64/Release/yasm.exe /usr/local/bin/yasm-win64
   if (! test -f /usr/local/bin/yasm-win64); then
     echo Error: could not copy Yasm!
     exit 1

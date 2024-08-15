@@ -54,11 +54,11 @@ popd
 exit /b
 
 :buildYasm
-if exist ..\..\yasm\Mkfiles\vs\x64\Debug\yasm.exe exit /b
+if exist ..\..\yasm\Mkfiles\vs\x64\Release\yasm.exe exit /b
 echo  Building Yasm
 pushd ..\..\Yasm\Mkfiles\vs
 for /f "usebackq tokens=1*" %%f in (`reg query HKCR\Python.File\shell\open\command 2^>NUL`) do (set _my_=%%f %%g)
-msbuild yasm.sln -p:Configuration=Debug
+msbuild yasm.sln -p:Configuration=Release
 
 :end_buildYasm
 popd
