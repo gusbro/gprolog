@@ -11,7 +11,7 @@ else
   extra_args="--prefix=`pwd`/../deploy/release"
 fi
 
-if (! test -f /usr/local/bin/yasm-win64); then
+if [[ ! -f /usr/local/bin/yasm-win64 || ! -f yasm-win64.exe || ! -L /usr/local/bin/cl || ! -L /usr/local/bin/lib || ! -L /usr/local/bin/rc ]]; then
   if ! command -v make &> /dev/null
   then
     echo Installing make...
@@ -32,6 +32,7 @@ if (! test -f /usr/local/bin/yasm-win64); then
   #sudo chmod 777 /usr/local/bin/yasm-win64
   cp /usr/local/bin/yasm-win64 ./yasm-win64.exe
 fi
+
 export PATH=`pwd`/Wam2Ma:`pwd`/Ma2Asm:`pwd`/Pl2Wam:`pwd`/Fd2C:`pwd`/TopComp:$PATH
 if (! test -f configured); then
   make clean
