@@ -34,6 +34,17 @@ pushd .. &> /dev/null
 deploy_dir=`pwd`/deploy/${1,,}
 popd &> /dev/null
 
+gprolog_version=`cat Makefile | grep ^PKG_NAME | cut -d = -f 2  | xargs`
+mkdir -p $deploy_dir/$gprolog_version/include/Tools &> /dev/null
+mkdir -p $deploy_dir/$gprolog_version/include/EnginePl &> /dev/null
+cp ./tools/hash_fct.h $deploy_dir/$gprolog_version/include/Tools/
+
+# Extra include files to copy
+files_to_copy_engine=("arch_dep.h" "atom.h" "bool.h" "engine.h" "engine_pl.h" "gp_config.h" "hash.h" "if_no_fd.h" "machine.h" "machine1.h" "misc.h" "obj_chain.h" "oper.h" "pl_long.h" "pl_params.h" "pred.h" "stacks_sigsegv.h" "wam_archi.h" "wam_inst.h" "wam_regs.h" "wam_stacks.h")
+for file in "${files_to_copy_engine[@]}"; do
+  cp "./EnginePl/$file" "$deploy_dir/$gprolog_version/include/EnginePl/"
+done
+
 echo
 echo GProlog installed in $deploy_dir
 
