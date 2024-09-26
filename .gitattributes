@@ -1,2 +1,2 @@
 * text eol=lf
-
+build_win.bat text eol=crlf
