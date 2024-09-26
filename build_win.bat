@@ -1,6 +1,5 @@
 @echo off
 echo GProlog Windows build script for WSL
-echo (EOL must be configured to lf)
 
 pushd src
 if "%PATH:Pl2Wam=%" == "%PATH%" call :set_path 
