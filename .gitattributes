@@ -1,2 +1,3 @@
 * text eol=lf
 build_win.bat text eol=crlf
+src/ensurePythonInstalled.bat text eol=crlf
