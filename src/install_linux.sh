@@ -1,4 +1,4 @@
-
+#!/bin/bash
 if  [ $# -eq 0 ] || [ "${1,,}" != "debug" ] && [ "${1,,}" != "release" ]
   then
     echo "Usage: $@ (Debug|Release)"
