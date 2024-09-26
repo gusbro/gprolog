@@ -8,7 +8,7 @@ fi
 if [ "${1,,}" = "debug" ]; then
   extra_args=(--with-c-flags="-fPIC -g -Wall" LDFLAGS=-fPIC CFLAGS_ENGINE1="-C -fPIC" --prefix="`pwd`/../deploy/debug")
 else
-  extra_args=("--prefix=`pwd`/../deploy/release")
+  extra_args=(--with-c-flags="-fPIC -Wall" LDFLAGS=-fPIC CFLAGS_ENGINE1="-C -fPIC" --prefix="`pwd`/../deploy/release")
 fi
 
 if ! command -v gcc &> /dev/null
