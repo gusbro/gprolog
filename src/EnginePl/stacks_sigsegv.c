@@ -56,6 +56,10 @@
 
 #include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
 
+#if defined(HAVE_WORKING_SIGACTION) && !(defined(_WIN32) || defined(__MSYS__))
+struct sigaction old_action;
+#endif
+
 #if !defined(__MSYS__) && (defined(__unix__) || defined(__CYGWIN__))
 #include <unistd.h>
 #elif defined(_WIN32) || defined(__MSYS__)
@@ -135,6 +139,8 @@ static int page_size;
 static SegvHdlr tbl_handler[MAX_SIGSEGV_HANDLER];
 static int nb_handler = 0;
 
+static char chain_nonhandled_exceptions = FALSE;  /* When TRUE allows calling the previous registered global exception handler for unrelated non-prolog exceptions,*/
+                                                  /* e.g. the one used in a .NET application */
 
 /*---------------------------------*
  * Function Prototypes             *
@@ -144,7 +150,7 @@ static void Install_SIGSEGV_Handler(void);
 
 static void SIGSEGV_Handler();
 
-static void Handle_Bad_Address(void *bad_addr);
+static char Handle_Bad_Address(void *bad_addr);
 
 static int Default_SIGSEGV_Handler(void *bad_addr);
 
@@ -156,7 +162,17 @@ static char *Stack_Overflow_Err_Msg(int stk_nb);
 
 #define Round_Down(x, y)        ((x) / (y) * (y))
 
+int set_chain_nonhandled_exceptions(char chain)
+{
+  int previous = chain_nonhandled_exceptions;
+  chain_nonhandled_exceptions = chain;
+  return previous;
+}
 
+int get_chain_nonhandled_exceptions()
+{
+  return chain_nonhandled_exceptions;
+}
 
 
 #if defined(_WIN32) || defined(__MSYS__)
@@ -399,10 +415,33 @@ Pl_Allocate_Stacks(void)
   defined(M_sparc32_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
 
 static void
-SIGSEGV_Handler(int sig, siginfo_t *sip)
+SIGSEGV_Handler(int sig, siginfo_t *sip, void *context)
 {
   void *addr = (void *) sip->si_addr;
-  Handle_Bad_Address(addr);
+  char handled = Handle_Bad_Address(addr);
+  if(!handled && chain_nonhandled_exceptions)
+  {    
+    if (old_action.sa_flags & SA_SIGINFO) 
+    {
+        if (old_action.sa_sigaction != NULL)
+        {
+            old_action.sa_sigaction(sig, sip, context); 
+            handled = TRUE;
+        }
+    } else 
+    {
+        if (old_action.sa_handler != SIG_IGN && old_action.sa_handler != SIG_DFL)
+        {
+            old_action.sa_handler(sig);
+            handled = TRUE;
+        }
+        if(!handled)
+        {
+          Pl_Fatal_Error("Segmentation Violation at: %p", addr);
+          exit(1);
+        }
+    }
+  }
 }
 
 #elif defined(M_sparc32_sunos)
@@ -512,12 +551,13 @@ static LONG WINAPI
 Win32_Exception_Handler(PEXCEPTION_POINTERS ei)
 {
   void *addr;
+  char handled = FALSE;
   switch(ei->ExceptionRecord->ExceptionCode)  
     {  
     case EXCEPTION_ACCESS_VIOLATION: /* Windows SIGSEGV */
     case STATUS_STACK_OVERFLOW:
       addr = (void *) ei->ExceptionRecord->ExceptionInformation[1];
-      Handle_Bad_Address(addr);
+      handled = Handle_Bad_Address(addr);
       break;  
 
 #ifdef DEBUG
@@ -526,8 +566,7 @@ Win32_Exception_Handler(PEXCEPTION_POINTERS ei)
       break;  
 #endif
     }
-
-  return EXCEPTION_EXECUTE_HANDLER;
+  return (handled || !chain_nonhandled_exceptions) ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
 }
 
 #endif	/* WINDOWS */
@@ -552,7 +591,7 @@ Install_SIGSEGV_Handler(void)
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_SIGINFO | SA_RESTART;
 
-  sigaction(SIGSEGV, &act, NULL);
+  sigaction(SIGSEGV, &act, &old_action);
 #  if defined(SIGBUS) && SIGBUS != SIGSEGV
   sigaction(SIGBUS, &act, NULL);
 #  endif
@@ -576,7 +615,7 @@ Install_SIGSEGV_Handler(void)
  * HANDLE_BAD_ADDRESS                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static char
 Handle_Bad_Address(void *bad_addr)
 {
   int i = nb_handler;
@@ -584,12 +623,15 @@ Handle_Bad_Address(void *bad_addr)
   while(--i >= 0)
     {
       if ((*tbl_handler[i])(bad_addr))
-	return;
+	return TRUE;
 
     }
-  
-  Pl_Fatal_Error("Segmentation Violation at: %p", bad_addr);
-  exit(1);
+  if(!chain_nonhandled_exceptions)
+  {
+    Pl_Fatal_Error("Segmentation Violation at: %p", bad_addr);
+    exit(1);
+  }
+  return FALSE;  
 }
 
 
@@ -641,6 +683,7 @@ Default_SIGSEGV_Handler(void *bad_addr)
 #else  /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
 
   int i;
+  int handled = 0;
   WamWord *addr = (WamWord *) bad_addr;
 
 #ifdef DEBUG
@@ -660,16 +703,18 @@ Default_SIGSEGV_Handler(void *bad_addr)
 #ifdef DEBUG
 	    DBGPRINTF("Found overflow on stack[%d]\n", i);
 #endif
+      handled = 1;
 	    Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
 	  }
         i--;
       }
 
-  Pl_Fatal_Error("Segmentation Violation (bad address: %p)", addr);
+  if(!chain_nonhandled_exceptions)
+    Pl_Fatal_Error("Segmentation Violation (bad address: %p)", addr);
 
 #endif /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
 
-  return 1;	    /* treated, anyway this handler never returns (exit()) */
+  return handled;	    
 }
 
 
