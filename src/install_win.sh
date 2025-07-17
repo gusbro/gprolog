@@ -1,14 +1,16 @@
 #!/bin/bash
 if  [ $# -eq 0 ] || [ "${1,,}" != "debug" ] && [ "${1,,}" != "release" ]
   then
-    echo "Usage: $@ (Debug|Release)"
+    echo "Usage: $@ (Debug|Release) [extra args]"
     exit 1
 fi
 
-if [ "${1,,}" = "debug" ]; then
-  extra_args="--with-c-flags=debug --prefix=`pwd`/../deploy/debug"
+configuration="${1,,}"
+
+if [ "$configuration" = "debug" ]; then
+  extra_args="--with-c-flags=debug --prefix=`pwd`/../deploy/debug ${@:2}"
 else
-  extra_args="--prefix=`pwd`/../deploy/release"
+  extra_args="--prefix=`pwd`/../deploy/release ${@:2}"
 fi
 
 if [[ ! -f /usr/local/bin/yasm-win64 || ! -f yasm-win64.exe || ! -L /usr/local/bin/cl || ! -L /usr/local/bin/lib || ! -L /usr/local/bin/rc ]]; then
@@ -34,12 +36,13 @@ if [[ ! -f /usr/local/bin/yasm-win64 || ! -f yasm-win64.exe || ! -L /usr/local/b
 fi
 
 export PATH=`pwd`/Wam2Ma:`pwd`/Ma2Asm:`pwd`/Pl2Wam:`pwd`/Fd2C:`pwd`/TopComp:$PATH
-if (! test -f configured); then
+if [ ! -f configured ] || ! grep -Fxq "$*" configured; then 
   make clean
   ./configure --with-msvc $extra_args
-  echo ${1,,} > configured
+  echo "$*" > configured
   make config 
 fi
+
 if (! test -f TopComp/gplc); then
   ln -s gplc.exe TopComp/gplc
   ln -s wam2ma.exe Wam2Ma/wam2ma
@@ -49,7 +52,7 @@ make
 make install-system
 
 pushd .. &> /dev/null
-deploy_dir=`pwd`/deploy/${1,,}
+deploy_dir=`pwd`/deploy/$configuration
 popd &> /dev/null
 
 gprolog_version=`cat Makefile | grep ^PKG_NAME | cut -d = -f 2  | xargs`

@@ -1,14 +1,16 @@
 #!/bin/bash
 if  [ $# -eq 0 ] || [ "${1,,}" != "debug" ] && [ "${1,,}" != "release" ]
   then
-    echo "Usage: $@ (Debug|Release)"
+    echo "Usage: $@ (Debug|Release) [extra args]"
     exit 1
 fi
 
+configuration="${1,,}"
+
 if [ "${1,,}" = "debug" ]; then
-  extra_args=(--with-c-flags="-fPIC -g -Wall" LDFLAGS=-fPIC CFLAGS_ENGINE1="-C -fPIC" --prefix="`pwd`/../deploy/debug")
+  extra_args=(--with-c-flags="-fPIC -g -Wall" LDFLAGS=-fPIC CFLAGS_ENGINE1="-C -fPIC" --prefix="`pwd`/../deploy/debug" ${@:2})
 else
-  extra_args=(--with-c-flags="-fPIC -Wall" LDFLAGS=-fPIC CFLAGS_ENGINE1="-C -fPIC" --prefix="`pwd`/../deploy/release")
+  extra_args=(--with-c-flags="-fPIC -Wall" LDFLAGS=-fPIC CFLAGS_ENGINE1="-C -fPIC" --prefix="`pwd`/../deploy/release" ${@:2})
 fi
 
 if ! command -v gcc &> /dev/null
@@ -18,12 +20,12 @@ if ! command -v gcc &> /dev/null
     sudo apt install gcc
   fi
 # || [ ! (grep -Fxq "${1,,}" configured) ]
-if  ! test -f configured || ! grep -Fxq "${1,,}" configured 
+if  ! test -f configured || ! grep -Fxq "$configuration $extra_args" configured 
 then
   echo Configuring ${1,,}...
   make clean
   ./configure "${extra_args[@]}"
-  echo ${1,,} > configured
+  echo $configuration $extra_args > configured
   make config 
 fi
 

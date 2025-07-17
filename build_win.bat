@@ -12,21 +12,11 @@ call :installYasm
 call :buildYasm
 
 echo Building GProlog %1
-if /I %1 == Debug goto build_debug
-if /I %1 == Release goto build_release
-goto usage
-
-:build_debug
-findstr /C:debug configured
-if ERRORLEVEL 1 del configured
-wsl ./install_win.sh debug
-
-goto end
-
-:build_release
-findstr /C:release configured
-if ERRORLEVEL 1 del configured
-wsl ./install_win.sh release
+if /I %1 == Debug (
+	wsl ./install_win.sh debug %2 %3 %4 %5 %6 %7 %8 %9
+) else if /I %1 == Release (
+	wsl ./install_win.sh release %2 %3 %4 %5 %6 %7 %8 %9
+) else goto usage
 
 goto end
 
@@ -65,8 +55,9 @@ exit /b
 
 
 :usage
-echo Usage: %0 (Debug^|Release)
+echo Usage: %0 (Debug^|Release) [extra args]
 echo Note: Must be run from x64 Native Tools Command Prompt (Visual Studio)
+echo example extra args: --disable-linedit
 goto end
 
 :end
